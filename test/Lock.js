@@ -1,28 +1,18 @@
-const { expect } = require("chai");
-const { ethers } = require("hardhat");
+// This setup uses Hardhat Ignition to manage smart contract deployments.
+// Learn more about it at https://hardhat.org/ignition
 
-describe("SimpleNFT", function () {
-  it("Should deploy and mint an NFT", async function () {
-    const [owner, addr1] = await ethers.getSigners();
+const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
 
-    const SimpleNFT = await ethers.getContractFactory("SimpleNFT");
-    const nft = await SimpleNFT.deploy(owner.address);
-    
-    await nft.waitForDeployment();
-    const contractAddress = await nft.getAddress();
+const JAN_1ST_2030 = 1893456000;
+const ONE_GWEI = 1_000_000_000n;
 
-    // Mint a new NFT
-    const tokenURI = "https://example.com/nft/1";
-    await nft.safeMint(owner.address, tokenURI);
+module.exports = buildModule("LockModule", (m) => {
+  const unlockTime = m.getParameter("unlockTime", JAN_1ST_2030);
+  const lockedAmount = m.getParameter("lockedAmount", ONE_GWEI);
 
-    // Check owner of token 0
-    expect(await nft.ownerOf(0)).to.equal(owner.address);
-
-    // Check token URI
-    expect(await nft.tokenURI(0)).to.equal(tokenURI);
-
-    // Check contract name and symbol
-    expect(await nft.name()).to.equal("SimpleNFT");
-    expect(await nft.symbol()).to.equal("SNFT");
+  const lock = m.contract("Lock", [unlockTime], {
+    value: lockedAmount,
   });
+
+  return { lock };
 });
