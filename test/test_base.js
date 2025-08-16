@@ -63,7 +63,10 @@ describe("BasicNFT Contract", function () {
       await basicNFT.connect(owner).mint(addr1.address, tokenId);
       
       const expectedURI = baseURI + tokenId;
-      expect(await basicNFT.tokenURI(tokenId)).to.equal(expectedURI);
+      const expectedURI2 =  await basicNFT.tokenURI(tokenId) ;
+      console.log("expectedURI2...",expectedURI2);
+
+      expect(expectedURI2).to.equal(expectedURI);
     });
 
     // it("Should fail when querying URI of nonexistent token", async function () {
